@@ -251,8 +251,9 @@ class EventNotifyHandler(BaseHTTPRequestHandler):
         # It might have been removed by another thread
         if subscription:
             service = subscription.service
+            
             log.info(
-                "Event %s received for %s service on thread %s at %s", seq,
+                "EVENT!! %s received for %s service on thread %s at %s", seq,
                 service.service_id, threading.current_thread(), timestamp)
             log.debug("Event content: %s", content)
             variables = parse_event_xml(content)
@@ -264,6 +265,9 @@ class EventNotifyHandler(BaseHTTPRequestHandler):
             service._update_cache_on_event(event)
             # Put the event on the queue
             subscription.events.put(event)
+            #CAC PUT NEW CALL HERE
+            if subscription.callback != None :
+                subscription.callback(sid, seq, service, timestamp, variables)
         else:
             log.info("No service registered for %s", sid)
         self.send_response(200)
@@ -414,8 +418,11 @@ class Subscription(object):
         # Used to keep track of the auto_renew thread
         self._auto_renew_thread = None
         self._auto_renew_thread_flag = threading.Event()
+        
+        #Callback function for event CAC
+        self.callback = None
 
-    def subscribe(self, requested_timeout=None, auto_renew=False):
+    def subscribe(self, requested_timeout=None, auto_renew=False, callback=None):
         """Subscribe to the service.
 
         If requested_timeout is provided, a subscription valid for that number
@@ -435,6 +442,8 @@ class Subscription(object):
                 automatically shortly before timeout. Default `False`.
         """
 
+        self.callback = callback
+        
         class AutoRenewThread(threading.Thread):
             """Used by the auto_renew code to renew a subscription from within
             a thread.
@@ -524,6 +533,8 @@ class Subscription(object):
         auto_renew_thread = AutoRenewThread(
             interval, self._auto_renew_thread_flag, self)
         auto_renew_thread.start()
+        
+        
 
     def renew(self, requested_timeout=None):
         """Renew the event subscription.

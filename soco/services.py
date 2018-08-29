@@ -565,7 +565,7 @@ class Service(object):
             raise UnknownSoCoException(xml_error)
 
     def subscribe(
-            self, requested_timeout=None, auto_renew=False, event_queue=None):
+            self, requested_timeout=None, auto_renew=False, event_queue=None, callback=None):
         """Subscribe to the service's events.
 
         Args:
@@ -591,7 +591,7 @@ class Service(object):
         subscription = Subscription(
             self, event_queue)
         subscription.subscribe(
-            requested_timeout=requested_timeout, auto_renew=auto_renew)
+            requested_timeout=requested_timeout, auto_renew=auto_renew, callback=callback)
         return subscription
 
     def _update_cache_on_event(self, event):
