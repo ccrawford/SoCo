@@ -22,6 +22,13 @@ Visit the `SoCo documentation`_ for a more detailed overview of all the function
 .. image:: https://img.shields.io/pypi/v/soco.svg?style=flat
     :target: https://pypi.python.org/pypi/soco/
     :alt: Latest PyPI version
+    
+UPDATES CCrawford
+-----------------
+I don't really know what I'm doing, so I forked this. I'm adding a callback when key events arrive
+so that I don't have to keep polling the event queue.
+
+
 
 WARNING
 -------
